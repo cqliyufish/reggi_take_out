@@ -1,12 +1,14 @@
 package com.yu.reggie_take_out.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yu.reggie_take_out.common.BaseContext;
 import com.yu.reggie_take_out.common.R;
 import com.yu.reggie_take_out.dto.DishDto;
 import com.yu.reggie_take_out.entity.Dish;
 import com.yu.reggie_take_out.entity.Orders;
+import com.yu.reggie_take_out.entity.Setmeal;
 import com.yu.reggie_take_out.sevice.OrdersService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,22 @@ public class OrdersController {
         queryWrapper.eq(number!=null, Orders::getId, number);
         ordersService.page(pageInfo, queryWrapper);
         return R.success(pageInfo);
+
+    }
+
+    @PutMapping
+    public R<String> update(@RequestBody Orders order){
+        log.info(order.toString());
+        Long orderId = order.getId();
+        Integer status = order.getStatus();
+        System.out.println(status);
+        if(status == 3){
+            UpdateWrapper<Orders> queryWrapper = new UpdateWrapper<>();
+            queryWrapper.set("status", status + 1).eq("id", orderId);
+            ordersService.update(queryWrapper);
+            return R.success("修改成功");
+        }
+        return R.error("不能修改");
 
     }
 }

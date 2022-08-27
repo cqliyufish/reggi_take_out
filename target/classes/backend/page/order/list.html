@@ -49,6 +49,17 @@
         <el-input v-model="input" placeholder="请输入订单号" style="width: 250px">
           <i slot="prefix" class="el-input__icon el-icon-search" style="cursor: pointer" @click="init"></i>
         </el-input>
+        <el-date-picker v-model="orderTime"
+          clearable 
+          value-format="yyyy-MM-dd HH:mm:ss"
+          type="datetimerange"
+          placeholder="选择日期"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          :default-time="['00:00:00', '23:59:59']"
+          style="width: 400px;margin-left: 20px;"
+        ></el-date-picker>
         <el-button type="primary" class="search-btn" @click="init">查询</el-button>
       </div>
       <el-table :data="tableData" stripe class="tableBox">
@@ -132,6 +143,32 @@
           <span class="des">{{ diaForm.orderTime }}</span>
         </div>
       </div>
+      <!-- <el-form ref="diaForm" :model="diaForm" class="dia-form">
+        <el-form-item label="订单号">
+          <span>{{ diaForm.number }}</span>
+        </el-form-item>
+        <el-form-item label="订单状态">
+          <span>{{ getOrderType(diaForm) }}</span>
+        </el-form-item>
+        <el-form-item label="收货人">
+          <span>{{ diaForm.consignee }}</span>
+        </el-form-item>
+        <el-form-item label="联系电话">
+          <span>{{ diaForm.phone }}</span>
+        </el-form-item>
+        <el-form-item label="地址">
+          <span>{{ diaForm.address }}</span>
+        </el-form-item>
+        <el-form-item label="支付金额">
+          <span>{{ diaForm.amount }}</span>
+        </el-form-item>
+        <el-form-item label="下单时间">
+          <span>{{ diaForm.orderTime }}</span>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span> -->
     </el-dialog>
   </div>
     <!-- 开发环境版本，包含了有帮助的命令行警告 -->
@@ -228,7 +265,7 @@
                 'cancelButtonText': '取消',
                 'type': 'warning'
               }).then(() => {
-                editOrderDetail(params).then(res => {
+                editOrderDetail(id).then(res => {
                   if (res.code === 1) {
                     this.$message.success(status === 3 ? '订单已派送' : '订单已完成')
                     this.init()
