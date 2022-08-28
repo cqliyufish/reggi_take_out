@@ -15,10 +15,12 @@ import com.yu.reggie_take_out.sevice.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +36,8 @@ public class SetmealController {
     private SetmealService setmealService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 保存新建套餐
@@ -41,6 +45,8 @@ public class SetmealController {
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         setmealService.saveWithDish(setmealDto);
+        String redisKey = "setmeal_" + setmealDto.getCategoryId() + "_1";
+        redisTemplate.delete(redisKey);
         return R.success("success");
 
     }
@@ -97,16 +103,6 @@ public class SetmealController {
         setmealService.update(queryWrapper);
         return R.success("状态更新成功");
     }
-
-//    @PostMapping("/status/{newStatus}")
-//    public R<String> updateStatus2(@PathVariable Long newStatus, Long ids){
-//        UpdateWrapper<Setmeal> updateWrapper = new UpdateWrapper<>();
-//        updateWrapper.set("status", newStatus).in("id", ids);
-//        setmealService.update(updateWrapper);
-//        return R.success("状态更新成功");
-//    }
-
-
     /**
      * 根据套餐id查询套餐，菜品
      * http://localhost:8080/dish/1561244789366378497
@@ -114,7 +110,6 @@ public class SetmealController {
     @GetMapping("/{id}")
     public R<SetmealDto> get(@PathVariable Long id){
         SetmealDto setmealDto = setmealService.getByIdWithDish(id);
-
         return R.success(setmealDto);
     }
 
@@ -124,6 +119,8 @@ public class SetmealController {
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto){
         setmealService.updateWithDish(setmealDto);
+        String redisKey = "setmeal_" + setmealDto.getCategoryId() + "_1";
+        redisTemplate.delete(redisKey);
         return R.success("update success");
     }
 
@@ -136,11 +133,22 @@ public class SetmealController {
 
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal){
+
+        //1.从redis中获取数据
+        List<Setmeal> list = null;
+
+        String redisKey = "setmeal_" + setmeal.getCategoryId()+ "_" + setmeal.getStatus();
+        list = (List<Setmeal>) redisTemplate.opsForValue().get(redisKey);
+        if(list != null){
+            // 如果存在redis中
+            return  R.success(list);
+        }
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(setmeal.getCategoryId() != null, Setmeal::getCategoryId, setmeal.getCategoryId());
         queryWrapper.eq(setmeal.getStatus() != null, Setmeal::getStatus, setmeal.getStatus());
         queryWrapper.orderByDesc(Setmeal::getUpdateTime);
-        List<Setmeal> list = setmealService.list(queryWrapper);
+        list = setmealService.list(queryWrapper);
+        redisTemplate.opsForValue().set(redisKey, list, 60, TimeUnit.MINUTES);
         return R.success(list);
 
     }
