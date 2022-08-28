@@ -8,11 +8,13 @@ import com.yu.reggie_take_out.utils.Sms;
 import com.yu.reggie_take_out.utils.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -20,6 +22,8 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 发送验证码
@@ -40,7 +44,10 @@ public class UserController {
             log.info("code ={} ", code);
 //            Sms.send(code, smsPhone);
             // 生成的验证码保存到session
-            session.setAttribute(phone, code);
+            //session.setAttribute(phone, code);
+            
+            //生成的验证码保存到Redis
+            redisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
             return R.success("验证码发送成功");
         }
         return R.error("验证码发送失败");
@@ -58,7 +65,10 @@ public class UserController {
         String code = map.get("code").toString();
 
         // 获取session中的验证码
-        Object codeSession = session.getAttribute(phone);
+        //Object codeSession = session.getAttribute(phone);
+        
+        //获取Redis中的验证码
+        Object codeSession = redisTemplate.opsForValue().get(phone);
         // 验证码比对
 
         if (codeSession != null && codeSession.equals(code)){
@@ -74,6 +84,8 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user", user.getId());
+            // 登录成功，删除redis中的验证码
+            redisTemplate.delete(phone);
             return R.success(user);
         }
 

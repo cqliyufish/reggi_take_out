@@ -10,11 +10,17 @@ spring:
       username: root
       password: 1234
   redis:
-#    host: 192.168.132.128 linux
-    host: 192.168.1.9
+#    host: 192.168.1.9
+    host: 192.168.132.128
     port: 6379
-#    password: root@123456
     database: 0
+    jedis:
+      pool:
+        max-idle: 30
+        max-active: 8
+        max-wait: 10000
+        min-idle: 10
+
 
 mybatis-plus:
   configuration:
