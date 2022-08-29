@@ -39,7 +39,8 @@ public class UserController {
 
         // 生成随机4位验证码
         if(StringUtils.hasLength(phone)){
-            String code = ValidateCodeUtils.generateValidateCode(4).toString();
+//            String code = ValidateCodeUtils.generateValidateCode(4).toString();
+            String code = "1234";
             // 发送短信
             log.info("code ={} ", code);
 //            Sms.send(code, smsPhone);
