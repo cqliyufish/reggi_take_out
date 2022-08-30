@@ -3,12 +3,36 @@ server:
 spring:
   application:
     name: reggie_take_out
-  datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: 1234
+  shardingsphere:
+    datasource:
+      names:
+        master,slave
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.132.128:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: root1234
+      slave:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://192.168.132.129:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: 1234
+    masterslave:
+      # 读写分离配置
+      load-balance-algorithm-type: round_robin #轮询
+      # 最终的数据源名称
+      name: dataSource
+      # 主库数据源名称
+      master-data-source-name: master
+      # 从库数据源名称列表，多个逗号分隔
+      slave-data-source-names: slave
+    props:
+      sql:
+        show: true #开启SQL显示，默认false
+  main:
+    allow-bean-definition-overriding: true
   redis:
 #    host: 192.168.1.9
     host: 192.168.132.128
@@ -20,6 +44,9 @@ spring:
         max-active: 8
         max-wait: 10000
         min-idle: 10
+  cache:
+    redis:
+      time-to-live: 900000 #cache过期时间
 
 
 mybatis-plus:
@@ -30,9 +57,12 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: ASSIGN_ID
+
+#上传图片存储位置
 reggie:
   path: D:\reggi\
 
+#验证码
 twilio:
   accountSID: ACf9271b1d8b22952ce29947b189bc9161
   authToken: 13bb3c13e291114de454c1dc3c23ab1d

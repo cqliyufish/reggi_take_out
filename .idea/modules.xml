@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/reggie_take_out.iml" filepath="$PROJECT_DIR$/reggie_take_out.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../BaiduNetdiskDownload/瑞吉外卖(1)/项目优化/代码/day02/reggie_take_out/reggie_take_out/reggie_take_out (1) (com.itheima).iml" filepath="$PROJECT_DIR$/../../../BaiduNetdiskDownload/瑞吉外卖(1)/项目优化/代码/day02/reggie_take_out/reggie_take_out/reggie_take_out (1) (com.itheima).iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../BaiduNetdiskDownload/瑞吉外卖(1)/项目优化/代码/day02/rw_demo/rw_demo/rw_demo.iml" filepath="$PROJECT_DIR$/../../../BaiduNetdiskDownload/瑞吉外卖(1)/项目优化/代码/day02/rw_demo/rw_demo/rw_demo.iml" />
     </modules>
   </component>
 </project>
